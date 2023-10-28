@@ -13,6 +13,16 @@ def get_arguments():
         parser.error("[-] Please specify a new mac, use --help for more info")
     return options
 
+def get_current_mac(interface):
+    ifconfig_result = subprocess.check_output(["ifconfig", interface])
+    # print(str(ifconfig_result))
+
+    mac_address_search_result = re.search(r"\w\w:\w\w:\w\w:\w\w:\w\w:\w\w", str(ifconfig_result))
+    if mac_address_search_result:
+        return mac_address_search_result.group(0)
+    else:
+        print("[-] Could not read MAC address")
+
 def change_mac(interface, new_mac):
     print("Changing Mac address for " + interface + " to " + new_mac)
     subprocess.call(["ifconfig", interface, "down"])
@@ -20,12 +30,7 @@ def change_mac(interface, new_mac):
     subprocess.call(["ifconfig", interface, "up"])
 
 options = get_arguments()
+current_mac = get_current_mac(options.interface)
+print("Current MAC = " + str(current_mac))
 # change_mac(options.interface, options.new_mac)
-ifconfig_result = subprocess.check_output(["ifconfig", options.interface])
-print(str(ifconfig_result))
 
-mac_address_search_result = re.search(r"\w\w:\w\w:\w\w:\w\w:\w\w:\w\w", str(ifconfig_result))
-if mac_address_search_result:
-    print(mac_address_search_result.group(0))
-else:
-    print("[-] Could not read MAC address")
